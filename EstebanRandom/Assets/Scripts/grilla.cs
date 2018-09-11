@@ -6,7 +6,7 @@ using UnityEngine;
 public class grilla : MonoBehaviour {
 
     [SerializeField] Vector2 dimensiones;
-    LayerMask mask;
+    int mask;
     Vector3 origin;
     Node[,] nodes;
     [SerializeField] float nodeDiameter;
@@ -19,10 +19,11 @@ public class grilla : MonoBehaviour {
 
     void Awake()
     {
+        mask = LayerMask.NameToLayer("UnWalkable");
         calculateDimensions();
-        crearGrilla();
-    }
-    
+        crearGrilla();        
+    }    
+
     private void calculateDimensions()
     {
         nodesOnX = Mathf.FloorToInt(dimensiones.x / nodeDiameter);
@@ -38,9 +39,9 @@ public class grilla : MonoBehaviour {
         {
             for (int y = 0; y < nodesOnY; y++)
             {
-                Vector3 nodePos = origin + Vector3.right * (x * nodeDiameter + nodeDiameter/2) + Vector3.forward* ( y * nodeDiameter + nodeDiameter/2);
-                Debug.Log(nodePos);
-                esCaminable = !Physics.CheckSphere(nodePos, mask);
+                Vector3 nodePos = origin + Vector3.right * (x * nodeDiameter + nodeDiameter/2) + Vector3.forward* ( y * nodeDiameter + nodeDiameter/2);                
+               
+                esCaminable = !Physics.CheckSphere(nodePos,nodeDiameter/2,1<<mask);
                 nodes[x, y] = new Node(nodePos, new Vector2(x,y),esCaminable);
             }
         }
@@ -55,7 +56,7 @@ public class grilla : MonoBehaviour {
         Vector3 localPos = pos - origin;
         x = Mathf.FloorToInt(localPos.x / nodeDiameter);
         y = Mathf.FloorToInt(localPos.z / nodeDiameter);
-        Debug.Log(x + " , " + y);       
+            
          
         if (x >= 0 && x < nodesOnX && y >= 0 && y < nodesOnY)
             return nodes[x, y];
@@ -77,10 +78,11 @@ public class grilla : MonoBehaviour {
             foreach (Node n in nodes)
             {
                 if(playerNode == n)                
-                    Gizmos.color = Color.blue;
+                    Gizmos.color = Color.blue;           
+
                 
                 else
-                    Gizmos.color = (esCaminable) ? Color.green : Color.red;
+                    Gizmos.color = (n.EsCaminable) ? Color.green : Color.red;
 
                 Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.05f));
                 
@@ -102,13 +104,14 @@ public class Node
     int f;
     public int F { get { return f; } }
     bool esCaminable;
+    public bool EsCaminable { get { return esCaminable; } }
     public Vector3 worldPosition;
     Vector2 pos;
 
     public Node(Vector3 worldPos, Vector2 coord, bool esCaminable)
     {
         worldPosition = worldPos;
-        coord = pos;
+        pos = coord;
         this.esCaminable = esCaminable;
         
     }
