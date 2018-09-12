@@ -14,7 +14,7 @@ public class grilla : MonoBehaviour {
     int nodesOnY;
     bool esCaminable;
 
-    public Transform player;
+    //public Transform player;
 
 
     void Awake()
@@ -49,7 +49,30 @@ public class grilla : MonoBehaviour {
 
     }
 
-    Node getNodeFromWorldPosition(Vector3 pos)
+    public List<Node> GetNeighborsNodes(Node myNode)
+    {
+        List<Node> neighbords = new List<Node>();
+        Vector2 coord = myNode.Pos;
+        int count = 0;
+        for (int i = (int)coord.x-1; i <= coord.x+1; i++)
+        {
+            for (int j = (int)coord.y - 1; j <= coord.y + 1; j++)
+            {
+                if(i != coord.x || j != coord.y)
+                {
+                    if (i >= 0 && j >= 0 && i <= nodesOnX - 1 && j <= nodesOnY - 1)
+                    {
+                        neighbords.Add(nodes[i, j]);
+                        count++;
+                    }
+                }                    
+            }
+        }
+        return neighbords;
+
+    }
+
+    public Node getNodeFromWorldPosition(Vector3 pos)
     {
         int x;
         int y;
@@ -74,15 +97,18 @@ public class grilla : MonoBehaviour {
 
         if (nodes != null)
         {
-            Node playerNode = getNodeFromWorldPosition(player.position);
+            //Node playerNode = getNodeFromWorldPosition(player.position);
             foreach (Node n in nodes)
             {
-                if(playerNode == n)                
-                    Gizmos.color = Color.blue;           
+                /*if(playerNode == n)                
+                    Gizmos.color = Color.blue;          
 
                 
-                else
-                    Gizmos.color = (n.EsCaminable) ? Color.green : Color.red;
+                else */
+                Gizmos.color = (n.EsCaminable) ? Color.green : Color.red;
+
+                if (n.recorrido)
+                    Gizmos.color = Color.cyan;
 
                 Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.05f));
                 
@@ -99,14 +125,15 @@ public class grilla : MonoBehaviour {
 
 public class Node
 {
-    int h;
-    int g;
-    int f;
-    public int F { get { return f; } }
+    public int h;
+    public int g;    
+    public int f; 
     bool esCaminable;
+    public bool recorrido = false;
     public bool EsCaminable { get { return esCaminable; } }
     public Vector3 worldPosition;
     Vector2 pos;
+    public Vector2 Pos { get { return pos; } }
 
     public Node(Vector3 worldPos, Vector2 coord, bool esCaminable)
     {
@@ -116,11 +143,12 @@ public class Node
         
     }
 
-    void calculateF(Vector2 from, Vector2 goal)
+    public void calculateF(Node from, Vector2 goal)
     {
         h = CalculateDistance(pos, goal);
-        g = CalculateDistance(pos, from);
-        f = h + g;
+        g = CalculateDistance(pos, from.pos);
+        g += from.g;
+        f = h + g;       
     }
 
     
