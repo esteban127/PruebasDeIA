@@ -1,31 +1,24 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Estrella : MonoBehaviour {
-
     
-   
-    [SerializeField] Transform objetivePos;
-    [SerializeField] Transform startingPos;
     [SerializeField]grilla myGrill;
+    Vector3[] path;
     float t;
-	// Use this for initialization
-
-	void Start () {
-
-        FindPath(objetivePos, startingPos);
-    }
 	
-	// Update is called once per frame
-	void Update () {
-        /*if (t > 1)
-        {
-            FindPath(objetivePos, startingPos);
-            t = 0;
+	public Vector3[] getPath(Transform start, Transform goal)
+    {
+        if (FindPath(goal, start))
+        {            
+              return path;            
         }
-        t += Time.deltaTime;*/
-	}
+        else
+            return new Vector3[0];
+
+    }
 
     bool FindPath(Transform objetive, Transform start)
     {
@@ -38,7 +31,7 @@ public class Estrella : MonoBehaviour {
         currentNode.calculateF(startingNode, objetiveNode.Pos);
         List<Node> currentNeighbords;
         Debug.Log("Debo llegar a" + objetiveNode.Pos);
-        int qseio = 0;
+        
         while (nodosHabilitados.Count > 0)
         {
             currentNode = nodosHabilitados[0];
@@ -52,8 +45,6 @@ public class Estrella : MonoBehaviour {
                     }                    
                 }               
             }
-
-            currentNode.recorrido = true;
             
             nodosHabilitados.Remove(currentNode);
             nodosCerrados.Add(currentNode);
@@ -62,7 +53,12 @@ public class Estrella : MonoBehaviour {
             if (currentNode == objetiveNode)
             {
                 Debug.Log("Llegue a " + objetiveNode.Pos);
-                return true;
+                    while(currentNode != startingNode)
+                    {
+                    CalculatePath(objetiveNode, startingNode);
+                        return true;
+                    }
+                
             }
 
             currentNeighbords = myGrill.GetNeighborsNodes(currentNode);
@@ -73,17 +69,13 @@ public class Estrella : MonoBehaviour {
                 {
                     if (nodosHabilitados.Contains(currentNeighbords[i]))
                     {
-                        //Debug.Log("este ia existe y recalculo");
-                        int neighbordG = currentNeighbords[i].g;
-                        int neighbordH = currentNeighbords[i].h;
-                        int neighbordF = currentNeighbords[i].f;
+                        //Debug.Log("este ia existe y recalculo");                       
+                        Node lastNode = currentNeighbords[i].Parent;
                         currentNeighbords[i].calculateF(currentNode, objetiveNode.Pos);
                         if (currentNeighbords[i].f > currentNode.f)
                         {
                             //Debug.Log("pos era mas pesado, lo vuelvo pa tras");
-                            currentNeighbords[i].g = neighbordG;
-                            currentNeighbords[i].h = neighbordH;
-                            currentNeighbords[i].f = neighbordF;
+                            currentNeighbords[i].calculateF(lastNode, objetiveNode.Pos);                        
                         }
                     }
                     else if (!nodosCerrados.Contains(currentNeighbords[i]))
@@ -96,27 +88,33 @@ public class Estrella : MonoBehaviour {
                 }
                 
             }
-            if (qseio > 100){
-                Debug.Log("Force quit");
-                return false;
-            }
-            qseio++;
+           
         }
+
+
+
         return false;
 
 
     }
-    /*void loop()
+
+    private void CalculatePath(Node objetiveNode, Node startingNode)
     {
-        nodosHabilitados = calculateNode(currentNodo);
+        List<Node> provitionalList = new List<Node>();
+        Node currentNode = objetiveNode;
+
+        while(currentNode != startingNode)
+        {
+            provitionalList.Add(currentNode);
+            currentNode = currentNode.Parent;
+        }
+        path = new Vector3[provitionalList.Count];
+        for (int i = 0; i < provitionalList.Count; i++)
+        {
+            path[path.Length - (i + 1)] = provitionalList[i].worldPosition;
+        }
     }
-
-    void calculateNextNode(Node currentNode)
-    {
-        if(nodosCerrados.Contains(node))
-
-        nodosCerrados.Add(nodo);
-    }*/
+     
 
 }
 

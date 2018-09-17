@@ -65,6 +65,7 @@ public class grilla : MonoBehaviour {
                         neighbords.Add(nodes[i, j]);
                         count++;
                     }
+
                 }                    
             }
         }
@@ -134,7 +135,8 @@ public class Node
     public Vector3 worldPosition;
     Vector2 pos;
     public Vector2 Pos { get { return pos; } }
-
+    Node parent;
+    public Node Parent { get { return parent; } }
     public Node(Vector3 worldPos, Vector2 coord, bool esCaminable)
     {
         worldPosition = worldPos;
@@ -143,8 +145,11 @@ public class Node
         
     }
 
+    
+
     public void calculateF(Node from, Vector2 goal)
     {
+        parent = from;
         h = CalculateDistance(pos, goal);
         g = CalculateDistance(pos, from.pos);
         g += from.g;
