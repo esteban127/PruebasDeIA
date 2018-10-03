@@ -3,14 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NeuronalNetwork : MonoBehaviour {
+
+public class NeuronalNetwork : IComparable<NeuronalNetwork> {
 
 
     int[] layers;
-    int[] Layers {get { return layers; } }
+    int[] Layers { get { return layers; } }
     float[][] neuronas;
     float[][][] pesos;
     float[][][] Pesos { get { return pesos; } }
+    float fitness;
+    public float Fitness {get{return fitness;}}
+    public void SetFitness(float value) { fitness = value; }
 
     public NeuronalNetwork( int[] initilLayers)
     {
@@ -62,25 +66,28 @@ public class NeuronalNetwork : MonoBehaviour {
 
     public float[] FitFoward(float[] input)
     {
-        float[] currentLayer = input;
-        float neuronaActual;
-        if(input.Length == layers[0])
+        float neuronaActual = 0;
+        int biasCount = 1;
+        if (input.Length == layers[0]) 
         {
+            neuronas[0] = input;
             for (int i = 1; i < layers.Length; i++)
             {
-                currentLayer = new float[layers[i]];
-                for (int j = 0; j < layers[i] -1; j++)
+
+                if (i == layers.Length-1)
+                    biasCount = 0;
+            
+                for (int j = 0; j < layers[i] - biasCount; j++)
                 {
                     for (int k = 0; k < pesos[i-1][j].Length; k++)
                     {
-                        //neuronaActual *+´´¨*[Ñ]= (activacion) currentLayer peso[i][j][k]
+                        neuronaActual += (pesos[i][j][k] * neuronas[i - 1][k]);
                         
                     }
-                    //Neurona[i][j] = neuronaActual
-                    currentLayer[j] = neuronaActual;
+                    neuronas[i][j] = neuronaActual;
                 }                
             }
-            return currentLayer;
+            return neuronas[neuronas.Length-1];
         }
         else
         {
@@ -89,6 +96,58 @@ public class NeuronalNetwork : MonoBehaviour {
         }
         
     }
+
+    private void MutarPesos()
+    {       
+        float value;
+        int random;
+        for (int i = 0; i < pesos.Length; i++)
+        {
+            for (int j = 0; j < pesos[i].Length; j++)
+            {
+                for (int k = 0; k < pesos[i][j].Length; k++)
+                {
+                    value = pesos[i][j][k];
+                    random = (int)UnityEngine.Random.Range(0, 100);
+
+                    switch (random)
+                        {
+
+                        case 20:
+                        case 21:
+                        case 22:
+                        case 23:
+                        case 24:
+                            value *= -1;
+                            break;
+
+                        case 27:
+                        case 28:
+                            value -= 0.1f;
+                            break;
+                        case 29:
+                        case 30:
+                            value *= 2;
+                            break;
+
+                        case 72:
+                        case 73:
+                            value += 0.1f;
+                            break;
+                        case 74:
+                        case 75:
+                            value *= 0.5f;
+                            break;
+                        }
+                    pesos[i][j][k] = value;
+
+                }
+            }
+        }
+    }
+
+
+
 
     void InicializarNeuronas(int[] neuronalLayer)
     {
@@ -130,6 +189,14 @@ public class NeuronalNetwork : MonoBehaviour {
         }
 
     }
-    
 
+    public int CompareTo(NeuronalNetwork other)
+    {
+        if (fitness == other.Fitness)
+            return 0;
+        if (fitness < other.Fitness)
+            return -1;
+
+        return 1;
+    }
 }
