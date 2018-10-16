@@ -23,6 +23,7 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
         InicializarPesos(layers);
 
     }
+   
     public NeuronalNetwork(NeuronalNetwork parent)
     {
 
@@ -76,17 +77,23 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
 
                 if (i == layers.Length-1)
                     biasCount = 0;
-            
+
+               
                 for (int j = 0; j < layers[i] - biasCount; j++)
                 {
+                    
+                    neuronaActual = 0;                    
                     for (int k = 0; k < pesos[i-1][j].Length; k++)
                     {
-                        neuronaActual += (pesos[i][j][k] * neuronas[i - 1][k]);
                         
-                    }
+                        neuronaActual += (pesos[i-1][j][k] * neuronas[i-1][k]);
+                        
+                    }                    
                     neuronas[i][j] = neuronaActual;
-                }                
-            }
+                }
+                
+
+            }           
             return neuronas[neuronas.Length-1];
         }
         else
@@ -158,7 +165,15 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
             provitionalList = new List<float>();
             for (int j = 0; j < neuronalLayer[i]; j++)
             {
-                provitionalList.Add(0.0f);
+                
+                if (i > 0 && i < neuronalLayer.Length - 1 && j == neuronalLayer[i] - 1)
+                {
+                    provitionalList.Add(UnityEngine.Random.Range(-50.0f, 50.0f));
+                }
+                else
+                {
+                    provitionalList.Add(0.0f);
+                }
             }
             neuronas[i] = provitionalList.ToArray();
         }
@@ -167,7 +182,7 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
 
     void InicializarPesos(int[] neuronalLayer)
     {
-
+       
         List<float> provitionalList;
         List<float[]> provitionalArrayList;
         pesos = new float[neuronalLayer.Length - 1][][];
@@ -175,10 +190,11 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
         for (int i = 0; i < neuronalLayer.Length - 1; i++)
         {
             provitionalArrayList = new List<float[]>();
-            for (int j = 1; j < neuronalLayer[i]; j++)
+            for (int j = 0; j < neuronalLayer[i+1]; j++)
             {
+                
                 provitionalList = new List<float>();
-                for (int k = 0; k < neuronalLayer[i-1]; k++)
+                for (int k = 0; k < neuronalLayer[i]; k++)
                 {
                     value = UnityEngine.Random.Range(-0.5f, 0.5f);
                     provitionalList.Add(value);

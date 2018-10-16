@@ -32,13 +32,17 @@ public class ShipMovement : MonoBehaviour {
         transform.Rotate(0, rotation * rotationCoef, 0, Space.Self);
     }
     
-    void CalculateFitness()
+    public void CalculateFitness()
     {
         myNeuronalNetwork.SetFitness(Vector3.Magnitude(transform.position - goal.transform.position));
     }
-
+    public void SetGoal(Transform goalTransform)
+    {
+        goal = goalTransform;
+    }
     void SetObjetives()
     {
+        goalObjetives = new float[3];
         goalObjetives[0] = Vector3.Angle(transform.forward, transform.position - goal.position);
         goalObjetives[1] = Vector3.Magnitude(new Vector3(transform.position.x,0,transform.position.z) - new Vector3(goal.position.x, 0, goal.position.z));
         goalObjetives[2] = transform.position.y - goal.position.y;
