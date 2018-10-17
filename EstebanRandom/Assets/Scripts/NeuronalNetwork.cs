@@ -15,21 +15,36 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
     float fitness;
     public float Fitness {get{return fitness;}}
     public void SetFitness(float value) { fitness = value; }
+    float[] bias;
+    public float[] Bias { get { return bias; } }
 
     public NeuronalNetwork( int[] initilLayers)
     {
         layers = copyArray(initilLayers);
+        InicializarBias(layers);
         InicializarNeuronas(layers);
         InicializarPesos(layers);
-
     }
-   
+
+    
+
     public NeuronalNetwork(NeuronalNetwork parent)
     {
 
         layers = parent.Layers;
+        bias = copyArray(parent.Bias); 
         InicializarNeuronas(layers);
         CopiarPesos(parent.Pesos);
+
+    }
+
+    private void InicializarBias(int[] layers)
+    {
+        bias = new float[layers.Length - 2];
+        for (int i = 0; i < bias.Length; i++)
+        {
+            bias[i] = UnityEngine.Random.Range(-50.0f, 50.0f);
+        }
     }
 
     private int[] copyArray(int[] array)
@@ -41,8 +56,17 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
         }
         return myArray;
     }
+    private float[] copyArray(float[] array)
+    {
+        float[] myArray = new float[array.Length];
+        for (int i = 0; i < array.Length; i++)
+        {
+            myArray[i] = array[i];
+        }
+        return myArray;
+    }
 
-    
+
 
     private void CopiarPesos(float[][][] parentPeso)
     {
@@ -104,9 +128,9 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
         
     }
 
-    private void MutarPesos()
+    public void Mutar()
     {       
-        float value;
+        float value = 0;
         int random;
         for (int i = 0; i < pesos.Length; i++)
         {
@@ -150,7 +174,10 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
 
                 }
             }
+            if (i < 0 && i < pesos.Length - 1)
+                bias[i] = value + (bias[i] * value);
         }
+        InicializarNeuronas(layers);
     }
 
 
@@ -168,7 +195,7 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
                 
                 if (i > 0 && i < neuronalLayer.Length - 1 && j == neuronalLayer[i] - 1)
                 {
-                    provitionalList.Add(UnityEngine.Random.Range(-50.0f, 50.0f));
+                    provitionalList.Add(bias[i-1]);
                 }
                 else
                 {
@@ -211,8 +238,8 @@ public class NeuronalNetwork : IComparable<NeuronalNetwork> {
         if (fitness == other.Fitness)
             return 0;
         if (fitness < other.Fitness)
-            return -1;
+            return 1;
 
-        return 1;
+        return -1;
     }
 }
